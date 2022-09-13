@@ -41,12 +41,10 @@ developmentChains.includes(network.name)
                 assert.equal(recentWinner, accounts[0].address);
                 assert.equal(raffleState.toString(), "0");
 
-                // Not able to resolve this issue
-
-                // assert.equal(
-                //   endingBalance.toString(),
-                //   startingBalance.add(entranceFee).toString()
-                // );
+                assert.equal(
+                  endingBalance.toString(),
+                  startingBalance.add(entranceFee).toString()
+                );
                 assert(endingTimeStamp > startingTimeStamp);
                 resolve();
               } catch (error) {
@@ -57,7 +55,13 @@ developmentChains.includes(network.name)
 
             // Then entering in raffle
             // We are keeping the enterRaffle statement inside promise but outside the listener
-            await raffleContract.enterRaffle({ value: entranceFee });
+
+            const tx = await raffleContract.enterRaffle({ value: entranceFee });
+            await tx.wait(2);
+
+            // you needed to initialize the starting balance immediately after you joined the lottery
+            // and before the ending balance.
+
             const startingBalance = await accounts[0].getBalance();
           });
         });
